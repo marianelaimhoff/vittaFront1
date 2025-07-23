@@ -2,38 +2,45 @@
 
 import { useState, useEffect } from 'react';
 import BackButton from '../BackButton/BackButton';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   getAvailableHours,
   createAppointment,
-  getAppointmentsByUser,
 } from '@/services/appointmentService';
 import { useAuth } from '@/context/AuthContext';
 import { getProviderById } from '@/services/providerService';
 import { Provider } from '@/types/Provider';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import {
   isWeekday,
   isDateInPast,
   isDuplicateDate,
   isSingleDateSelected,
   isSingleTimeSelected,
-  hasReachedMonthlyLimit,
-  MAX_APPOINTMENTS_PER_MONTH
 } from '@/helpers/apptvalidations';
 
 export default function AppointmentPage() {
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loadingProvider, setLoadingProvider] = useState(false);
-  const [userAppointments, setUserAppointments] = useState<any[]>([]);
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [hoursPerDate, setHoursPerDate] = useState<Record<string, string[]>>({});
+  const [selectedHours, setSelectedHours] = useState<Record<string, string>>({});
+  const [loadingDate, setLoadingDate] = useState<string | null>(null);
+
   const params = useParams();
+  const router = useRouter();
   const providerId = typeof params.id === 'string' ? params.id : '';
   const { user } = useAuth();
   const userId = user?.id || '';
+
+  const today = new Date();
+  const days = eachDayOfInterval({
+    start: startOfMonth(today),
+    end: endOfMonth(today),
+  }).filter((day) => isWeekday(day) && !isDateInPast(day));
 
   useEffect(() => {
     const fetchProvider = async () => {
@@ -50,34 +57,12 @@ export default function AppointmentPage() {
       }
     };
 
-    const fetchUserAppointments = async () => {
-      if (!userId) return;
-      try {
-        const appointments = await getAppointmentsByUser(userId);
-        setUserAppointments(appointments || []);
-      } catch (error) {
-        console.error('Error al obtener citas del usuario:', error);
-      }
-    };
-
     fetchProvider();
-    fetchUserAppointments();
-  }, [providerId, userId]);
-
-  const today = new Date();
-  const days = eachDayOfInterval({
-    start: startOfMonth(today),
-    end: endOfMonth(today),
-  }).filter((day) => isWeekday(day) && !isDateInPast(day));
-
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const [hoursPerDate, setHoursPerDate] = useState<Record<string, string[]>>({});
-  const [selectedHours, setSelectedHours] = useState<Record<string, string>>({});
-  const [loadingDate, setLoadingDate] = useState<string | null>(null);
+  }, [providerId]);
 
   const toggleDate = async (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    
+
     if (isDuplicateDate(selectedDates, date)) {
       setSelectedDates((prev) => prev.filter((d) => !isDuplicateDate([d], date)));
       setSelectedHours((prev) => {
@@ -90,11 +75,6 @@ export default function AppointmentPage() {
 
     if (!isSingleDateSelected(selectedDates)) {
       toast('Solo puedes seleccionar un día a la vez.', { icon: '❗' });
-      return;
-    }
-
-    if (hasReachedMonthlyLimit(userAppointments)) {
-      toast(`Ya has alcanzado el máximo de ${MAX_APPOINTMENTS_PER_MONTH} citas este mes.`, { icon: '❗' });
       return;
     }
 
@@ -127,11 +107,6 @@ export default function AppointmentPage() {
   const handleSubmit = async () => {
     if (!selectedDates.length || !Object.keys(selectedHours).length || !userId || !providerId || !provider) {
       toast('Faltan datos para agendar el turno.', { icon: '❗' });
-      return;
-    }
-
-    if (hasReachedMonthlyLimit(userAppointments)) {
-      toast(`Ya has alcanzado el máximo de ${MAX_APPOINTMENTS_PER_MONTH} citas este mes.`, { icon: '❗' });
       return;
     }
 
@@ -173,8 +148,6 @@ export default function AppointmentPage() {
     }
   };
 
-  const router = useRouter();
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -182,9 +155,10 @@ export default function AppointmentPage() {
       transition={{ duration: 0.4 }}
       className="max-w-4xl mx-auto p-6 font-sans space-y-8"
     >
-      <div className="absolute top-24 left-4 z-10"> {/* Cambié top-4 a top-24 */}
-          <BackButton />
-        </div>
+      <div className="absolute top-24 left-4 z-10">
+        <BackButton />
+      </div>
+
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-gray-800">Agenda tu cita</h1>
         <p className="text-gray-600 text-sm">
@@ -192,7 +166,6 @@ export default function AppointmentPage() {
         </p>
       </div>
 
-      {/* Profesional */}
       {provider && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -225,7 +198,6 @@ export default function AppointmentPage() {
         </motion.div>
       )}
 
-      {/* Fechas */}
       <div>
         <h2 className="text-sm font-semibold text-gray-700 mb-2">Selecciona fecha</h2>
         <div className="flex gap-2 overflow-x-auto pb-2">
@@ -252,7 +224,6 @@ export default function AppointmentPage() {
         </div>
       </div>
 
-      {/* Horarios */}
       {selectedDates.map((date) => {
         const dateStr = date.toISOString().split('T')[0];
         const hours = hoursPerDate[dateStr] || [];
@@ -289,7 +260,6 @@ export default function AppointmentPage() {
         );
       })}
 
-      {/* Resumen */}
       {selectedDates.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -315,7 +285,6 @@ export default function AppointmentPage() {
         </motion.div>
       )}
 
-      {/* Confirmar */}
       <button
         onClick={handleSubmit}
         disabled={!selectedDates.length || !Object.keys(selectedHours).length}

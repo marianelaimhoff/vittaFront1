@@ -1,10 +1,7 @@
-// services/appointmentService.ts
-
-import { Appointment } from "@/types/Appointment";
+import { Appointment } from '@/types/Appointment';
+import { fetchWithToken } from "../app/utils/fetchWithToken";
 
 export type AvailableHour = { hourHand: string };
-//const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 
 export interface ValidateAppointmentPayload {
   professionalId: string;
@@ -14,12 +11,12 @@ export interface ValidateAppointmentPayload {
 export interface CreateAppointmentPayload {
   userId: string;
   professionalId: string;
-  date: Date; // formato 'YYYY-MM-DD'
+  date: Date;
   time: string; // '08:00', '09:00', etc.
-  status: string; // por ejemplo 'Pendiente' o 'Confirmado'
+  status: string;
 }
 
-// Obtener horarios disponibles para un profesional en una fecha
+// ✅ Obtener horarios disponibles
 export const getAvailableHours = async ({
   professionalId,
   date,
@@ -27,92 +24,61 @@ export const getAvailableHours = async ({
   professionalId: string;
   date: string;
 }): Promise<AvailableHour[]> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments/validate`, {
+  const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/appointments/validate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ professionalId, date }),
-    credentials: 'include',
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData?.message || 'Error al consultar disponibilidad');
-  }
 
   const data: AvailableHour[] = await response.json();
   return data;
 };
 
-
-// Crear un nuevo turno // ajustá la ruta según corresponda
-
+// ✅ Crear turno
 export async function createAppointment(data: CreateAppointmentPayload) {
-  console.log('Payload a enviar a /appointments/create:', data);
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments/create`, {
+  const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/appointments/create`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data), // ✅ Date se serializa automáticamente como ISO 8601
+    body: JSON.stringify(data),
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error('Respuesta de error del backend:', errorData);
-    throw new Error(errorData?.message || 'Error al crear turno');
-  }
 
   return await response.json();
 }
 
-
-
-
+// ✅ Obtener turnos por usuario
 export const getAppointmentsByUser = async (userId: string): Promise<Appointment[]> => {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/appointments/user/${userId}`;
-  console.log('URL completa que se va a fetch:', url);
+  const res = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/appointments/user/${userId}`);
 
-  const res = await fetch(url);
-
-  if (res.status === 404) {
-    // Si el backend devuelve 404 cuando no hay turnos, simplemente devolvemos []
-    return [];
-  }
-
-  if (!res.ok) throw new Error('Error al obtener turnos del usuario');
-
+  if (res.status === 404) return [];
   return res.json();
 };
 
+// ✅ Obtener turnos por proveedor
 export const getAppointmentsByProvider = async (providerId: string): Promise<Appointment[]> => {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/appointments/provider/${providerId}`;
   try {
-    const res = await fetch(url);
-    if (res.status === 404) return []; // 👉 si no hay turnos o el provider no existe
-    if (!res.ok) throw new Error('Error al obtener turnos del profesional');
+    const res = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/appointments/provider/${providerId}`);
+    if (res.status === 404) return [];
     return res.json();
   } catch (error) {
     console.error('Error en getAppointmentsByProvider:', error);
-    return []; // 👉 devuelve array vacío si hay cualquier otro error controlado
+    return [];
   }
 };
 
-
-
-
+// ✅ Cancelar turno
 export const cancelAppointment = async (appointmentId: string) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments/cancel/${appointmentId}`, {
+  const res = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/appointments/cancel/${appointmentId}`, {
     method: 'PATCH',
   });
-  if (!res.ok) throw new Error('Error al cancelar turno');
+
   return res.json();
 };
 
+// ✅ Confirmar turno
 export const confirmAppointment = async (appointmentId: string) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments/provider/confirm/${appointmentId}`, {
+  const res = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/appointments/provider/confirm/${appointmentId}`, {
     method: 'PATCH',
   });
-  if (!res.ok) throw new Error('Error al confirmar turno');
-  return await res.json();
+
+  return res.json();
 };
 
 

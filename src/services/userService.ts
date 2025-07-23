@@ -1,4 +1,5 @@
 import { RegisterUserValues } from "@/types/forms/RegisterUser";
+import { fetchWithToken } from "../app/utils/fetchWithToken";
 
 
   export const registerUser = async (userData: RegisterUserValues) => {
@@ -27,20 +28,19 @@ import { RegisterUserValues } from "@/types/forms/RegisterUser";
   };
 
 
-  export const getUserById = async (id: string, token: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  
-    if (!res.ok) {
-      throw new Error("No se pudo obtener el usuario");
-    }
-  
-    return await res.json();
-  };
-  
+
+
+export const getUserById = async (id: string) => {
+  const res = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => 'Error al obtener el usuario');
+    throw new Error(errorText);
+  }
+
+  return await res.json();
+};
+
 
 
 
