@@ -1,5 +1,7 @@
 // services/providerService.ts
 import { RegisterProviderValues } from "../types/forms/RegisterProviders";
+import { fetchWithToken } from '@/app/utils/fetchWithToken';
+import { Provider } from '../types/Provider';
 
 export const registerProvider = async (data: RegisterProviderValues) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
@@ -17,20 +19,11 @@ export const registerProvider = async (data: RegisterProviderValues) => {
   };
   
 
-// services/providerService.ts
-import { Provider } from '../types/Provider';
+
 
 export const getProviders = async (): Promise<Provider[]> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Error al obtener proveedores");
-    }
+    const res = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/users`);
 
     const data = await res.json();
 
@@ -64,17 +57,10 @@ export const getProviders = async (): Promise<Provider[]> => {
 };
 
 
+
 export const getProviderById = async (id: string): Promise<Provider> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Error al obtener proveedor");
-    }
+    const res = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
 
     const provider = await res.json();
     const profile = provider.professionalProfile || {};
@@ -103,7 +89,7 @@ export const getProviderById = async (id: string): Promise<Provider> => {
       },
     };
   } catch (err) {
-    console.error("Error fetching provider by ID:", err);
+    console.error('Error fetching provider by ID:', err);
     throw err;
   }
 };

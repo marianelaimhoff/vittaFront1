@@ -50,7 +50,7 @@ export default function Login() {
 
       if (!userId) toast.error("El token no contiene userId");
 
-      const user = await getUserById(userId, token);
+      const user = await getUserById(userId);
       console.log("Usuario obtenido:", user);
       localStorage.setItem('userId', user.id); 
       if (role === 'provider' && user.professionalProfile?.id) {

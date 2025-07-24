@@ -15,7 +15,7 @@ export default function ProviderProfile() {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
 
-  const { hasMembership } = useAuth();
+  const { hasMembership, role, isAuthenticated } = useAuth();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
@@ -143,13 +143,16 @@ export default function ProviderProfile() {
       {/* Agenda */}
       <div className="md:col-span-1 bg-gray-100 p-6 rounded-xl shadow-md">
         <h2 className="text-lg font-bold text-secondary mb-1">Agenda tus consultas del mes</h2>
-        <p className="text-green-600 font-semibold text-sm mb-2">Haz clic para ver la disponibilidad</p>
+        {isAuthenticated && role !== 'provider' && (
+         <p className="text-green-600 font-semibold text-sm mb-2">Haz clic para ver la disponibilidad</p>
+        )}
         <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
           <li>Los turnos son a través de videollamadas.</li>
           <li>La tolerancia de espera es de 10 min.</li>
           <li>Disponer de micrófono y cámara.</li>
         </ul>
 
+        {isAuthenticated && role !== 'provider' && (
         <div className="mt-4 flex justify-center">
           <button
             onClick={handleBookingClick}
@@ -159,6 +162,7 @@ export default function ProviderProfile() {
             {isProcessing ? 'Cargando...' : 'Agendar citas'}
           </button>
         </div>
+      )}
       </div>
 
       {/* Membresía (solo información) */}

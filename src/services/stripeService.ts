@@ -1,5 +1,6 @@
 
 import { loadStripe } from '@stripe/stripe-js';
+import { fetchWithToken } from '../app/utils/fetchWithToken'; // Adjust the import path as necessary
 
 export const initializeStripe = async () => {
   if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
@@ -15,50 +16,32 @@ export const initializeStripe = async () => {
 
 // services/stripeService.ts
 export const createCheckoutSession = async (email: string): Promise<{ url: string }> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stripe/create-checkout-session`, {
+  const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/stripe/create-checkout-session`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({ email }),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || 'No se pudo crear la sesión de pago');
+  const data = await response.json();
+
+  if (!data.url) {
+    throw new Error('No se recibió una URL válida de Stripe');
   }
 
-  const data = await response.json();
-  if (!data.url) throw new Error('No se recibió una URL válida de Stripe');
   return data;
 };
 
 
 export const createStripePayment = async (email: string): Promise<{ clientSecret: string }> => {
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${apiUrl}/stripe/create-order`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }), // 👈 Aquí se envía el email
-    });
+  const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/stripe/create-order`, {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Failed to create payment');
-    }
+  const data = await response.json();
 
-    const data = await response.json();
-
-    if (!data.clientSecret) {
-      throw new Error('Missing clientSecret in response');
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Stripe payment error:', error);
-    throw error;
+  if (!data.clientSecret) {
+    throw new Error('Missing clientSecret in response');
   }
+
+  return data;
 };
