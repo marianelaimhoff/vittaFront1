@@ -66,7 +66,10 @@ export default function AppointmentPage() {
       if (!userId) return;
       try {
         const appointments = await getAppointmentsByUser(userId);
-        setUserAppointments(appointments || []);
+        const activeAppointments = appointments.filter(
+      (appt) => appt.status === 'pending' || appt.status === 'confirmed'
+    );
+        setUserAppointments(activeAppointments);
       } catch (error) {
         console.error("Error al obtener citas del usuario:", error);
       }
