@@ -55,7 +55,7 @@ const CardProvider = ({ id, name, imageUrl, specialty, biography }: CardProvider
   };
 
   return (
-    <div className="flex bg-gray-100 rounded-xl shadow-md p-4 max-w-3xl w-full">
+    <div className="flex bg-gray-50 rounded-xl shadow-md p-4 max-w-3xl w-full">
       {/* Overlay de loading */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -67,7 +67,7 @@ const CardProvider = ({ id, name, imageUrl, specialty, biography }: CardProvider
       )}
 
       {/* Imagen con optimización */}
-      <div className="w-36 h-36 relative rounded-lg border border-primary overflow-hidden mr-4">
+      <div className="w-36 h-36 relative rounded-lg overflow-hidden mr-4">
         <Image 
           src={optimizedImageUrl} 
           alt={name} 
@@ -87,11 +87,11 @@ const CardProvider = ({ id, name, imageUrl, specialty, biography }: CardProvider
           <div className="text-primary text-2xl">★★★★★</div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-2">
+        <div className="flex flex-wrap gap-2  mb-2">
           {specialty.map((item) => (
             <span
               key={item.id}
-              className="bg-yellow-400 text-white px-3 py-1 rounded-full text-sm font-semibold"
+              className="text-yellow-500 border border-tertiary px-3 py-1 rounded-full text-sm font-semibold shadow-md shadow-gray-300/30"
             >
               {item.name}
             </span>
