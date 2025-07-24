@@ -87,7 +87,7 @@ export default function ProviderProfile() {
 
       {/* Imagen */}
       <div className="col-span-1 flex justify-center md:justify-start">
-        <div className="w-60 h-60 relative rounded-xl border border-primary overflow-hidden">
+        <div className="w-60 h-60 relative rounded-xl overflow-hidden shadow-md shadow-gray-400">
           <Image
             src={provider.imageUrl || '/Avatar.jpg'}
             alt={provider.name}
@@ -100,10 +100,13 @@ export default function ProviderProfile() {
       {/* Perfil principal */}
       <div className="md:col-span-2">
         <h1 className="text-4xl font-bold text-secondary">{provider.name}</h1>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {provider.professionalProfile?.specialty?.map((s) => (
-            <span key={s.id} className="bg-yellow-400 text-white px-3 py-1 rounded-full text-sm font-semibold">
-              {s.name}
+        <div className="flex flex-wrap gap-2 mt-4 mb-2">
+          {provider.professionalProfile?.specialty?.map((item) => (
+            <span
+              key={item.id}
+              className="text-yellow-500 border border-tertiary px-3 py-1 rounded-full text-sm font-semibold shadow-md shadow-gray-300/30"
+            >
+              {item.name}
             </span>
           ))}
         </div>
@@ -119,7 +122,7 @@ export default function ProviderProfile() {
       </div>
 
       {/* Datos personales */}
-      <div className="md:col-span-1 bg-gray-50 p-6 rounded-xl shadow-md">
+      <div className="md:col-span-1 bg-gray-100 p-6 rounded-xl shadow-md">
         <h2 className="text-lg font-bold text-secondary mb-4">Datos personales</h2>
         <div className="text-gray-700 space-y-3 text-sm">
           <div className="flex items-center gap-2">
@@ -138,7 +141,7 @@ export default function ProviderProfile() {
       </div>
 
       {/* Agenda */}
-      <div className="md:col-span-1 bg-gray-50 p-6 rounded-xl shadow-md">
+      <div className="md:col-span-1 bg-gray-100 p-6 rounded-xl shadow-md">
         <h2 className="text-lg font-bold text-secondary mb-1">Agenda tus consultas del mes</h2>
         {isAuthenticated && role !== 'provider' && (
          <p className="text-green-600 font-semibold text-sm mb-2">Haz clic para ver la disponibilidad</p>
@@ -163,7 +166,7 @@ export default function ProviderProfile() {
       </div>
 
       {/* Membresía (solo información) */}
-      <div className="md:col-span-1 bg-gray-50 p-6 rounded-xl shadow-md">
+      <div className="md:col-span-1 bg-gray-100 p-6 rounded-xl shadow-md">
         <h2 className="text-lg font-bold text-secondary mb-1">Membresía</h2>
         <p className="text-green-600 font-bold text-lg">$49.99 c/ mes</p>
         <p className="text-sm text-gray-700 mt-1">
