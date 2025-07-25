@@ -54,8 +54,8 @@ export default function Login() {
       console.log("Usuario obtenido:", user);
       localStorage.setItem('userId', user.id); 
       if (role === 'provider' && user.professionalProfile?.id) {
-  localStorage.setItem('professionalId', user.professionalProfile.id);
-}
+        localStorage.setItem('professionalId', user.professionalProfile.id);
+      }
       login(user, token, role);
 
       setTimeout(() => {
@@ -104,7 +104,7 @@ export default function Login() {
         </div>
       )}
 
-      <div className="absolute top-24 left-4 z-10"> {/* Cambié top-4 a top-24 */}
+      <div className="absolute top-24 left-4 z-10">
           <BackButton />
         </div>
 
@@ -118,7 +118,7 @@ export default function Login() {
             priority
           />
         </div>
-        <h2 className="text-2xl font-semibold text-center mb-6">
+        <h2 className="title1">
           Iniciar sesión
         </h2>
 
@@ -174,7 +174,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isSubmitting || isLoggingIn || isGoogleLoading}
-            className={`w-full bg-primary text-white py-2 rounded-full hover:bg-teal-800 transition-colors ${
+            className={`w-full bg-primary text-white py-2 rounded-full hover:bg-secondary transition-colors ${
               isSubmitting || isLoggingIn || isGoogleLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
@@ -195,7 +195,7 @@ export default function Login() {
         <button
           onClick={handleGoogleLogin}
           disabled={isLoggingIn || isGoogleLoading}
-          className={`w-full text-secondary border border-secondary px-4 py-2 rounded-full text-sm hover:border-primary hover:text-primary transition mt-4 ${
+          className={`w-full flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-full text-sm hover:border-primary hover:text-primary transition mt-4 ${
             isGoogleLoading ? "opacity-70 cursor-not-allowed" : ""
           }`}
         >
@@ -208,7 +208,15 @@ export default function Login() {
               Redirigiendo...
             </span>
           ) : (
-            "Continuar con Google"
+            <>
+              <Image
+                src="/google-logo.png" // Asegúrate de tener este archivo en tu carpeta public
+                alt="Google Logo"
+                width={20}
+                height={20}
+              />
+              Continuar con Google
+            </>
           )}
         </button>
 
@@ -224,12 +232,10 @@ export default function Login() {
             href="mailto:support@vitta.org"
             className="text-teal-700 underline"
           >
-            support@vitta.org
+            pfvitta@gmail.com
           </a>
         </p>
-        <p className="mt-2 text-center text-xs text-gray-400">
-          Copyright © Vitta Inc. 2025
-        </p>
+        
       </div>
     </div>
   );

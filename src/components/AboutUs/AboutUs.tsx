@@ -1,6 +1,5 @@
 'use client';
 
-
 import Image from 'next/image';
 import BackButton from '../BackButton/BackButton';
 
@@ -8,7 +7,7 @@ export default function AboutUs() {
   
   return (
     <main className="max-w-5xl mx-auto px-6 py-12 font-sans">
-        <div className="absolute top-24 left-4 z-10"> {/* Cambié top-4 a top-24 */}
+        <div className="absolute top-24 left-4 z-10">
           <BackButton />
         </div>
       <h1 className="text-4xl font-bold text-primary mb-6 text-center">Acerca de nosotros</h1>
@@ -17,7 +16,7 @@ export default function AboutUs() {
         {/* Imagen */}
         <div className="relative w-full h-[300px] md:h-[400px]">
           <Image
-            src="/AboutUs.jpg" // ✅ reemplaza con tu imagen real
+            src="/AboutUs.jpg"
             alt="Equipo Vitta"
             fill
             className="object-cover rounded-lg shadow-md"
@@ -38,7 +37,76 @@ export default function AboutUs() {
           </p>
         </div>
       </div>
+
+      {/* Sección de equipo */}
+      <div className="mt-16">
+        <h2 className="text-3xl font-bold text-primary mb-8 text-center">Equipo de desarrollo</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Card 1 */}
+          <div className="bg-gray-50 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col items-center pb-4">
+            <div className="relative h-40 w-40 mt-6 rounded-full overflow-hidden">
+              <Image
+                src="/member-1.jfif"
+                alt="Daniela Acevedo"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="p-4 text-center">
+              <h3 className="text-xl font-semibold text-secondary">Daniela Acevedo</h3>
+              <p className="text-gray-600">Frontend</p>
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="bg-gray-50 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col items-center pb-4">
+            <div className="relative h-40 w-40 mt-6 rounded-full overflow-hidden">
+              <Image
+                src="/member-2.jpg"
+                alt="Marianela Imhoff"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="p-4 text-center">
+              <h3 className="text-xl font-semibold text-secondary">Marianela Imhoff</h3>
+              <p className="text-gray-600">Frontend</p>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="bg-gray-50 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col items-center pb-4">
+            <div className="relative h-40 w-40 mt-6 rounded-full overflow-hidden">
+              <Image
+                src="/member-3.jfif"
+                alt="Ivan Guarnizo"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="p-4 text-center">
+              <h3 className="text-xl font-semibold text-secondary">Ivan Guarnizo</h3>
+              <p className="text-gray-600">Backend</p>
+            </div>
+          </div>
+
+          {/* Card 4 */}
+          <div className="bg-gray-50 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col items-center pb-4">
+            <div className="relative h-40 w-40 mt-6 rounded-full overflow-hidden">
+              <Image
+                src="/member-4.jfif"
+                alt="Jose Cespedes"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="p-4 text-center">
+              <h3 className="text-xl font-semibold text-secondary">Jose Cespedes</h3>
+              <p className="text-gray-600">Backend</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
-    
   );
 }

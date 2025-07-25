@@ -108,16 +108,12 @@ export default function DashboardUser() {
               <InfoItem
                 icon={<Calendar className="h-5 w-5 text-primary" />}
                 label="Fecha de nacimiento"
-                value={
-                  user.birthDate
-                    ? new Date(user.birthDate).toLocaleDateString()
-                    : 'No registrada'
-                }
+                value={user.dob || 'No registrada'}
               />
               <InfoItem
                 icon={<MapPin className="h-5 w-5 text-primary" />}
-                label="Dirección"
-                value={user.address || 'No registrada'}
+                label="Ciudad"
+                value={user.city || 'No registrada'}
               />
             </div>
           </div>
