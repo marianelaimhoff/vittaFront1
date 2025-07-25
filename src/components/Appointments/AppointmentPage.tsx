@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import BackButton from "../BackButton/BackButton";
-import { useParams, useRouter } from "next/navigation";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
-import { es } from "date-fns/locale";
+import { useState, useEffect } from 'react';
+import BackButton from '../BackButton/BackButton';
+import { useParams, useRouter } from 'next/navigation';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
   getAvailableHours,
   createAppointment,
   getAppointmentsByUser,
-} from "@/services/appointmentService";
-import { useAuth } from "@/context/AuthContext";
-import { getProviderById } from "@/services/providerService";
-import { Provider } from "@/types/Provider";
-import { toast } from "react-hot-toast";
-import { motion } from "framer-motion";
+} from '@/services/appointmentService';
+import { useAuth } from '@/context/AuthContext';
+import { getProviderById } from '@/services/providerService';
+import { Provider } from '@/types/Provider';
+import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import {
   isWeekday,
   isDateInPast,
@@ -23,8 +23,8 @@ import {
   isSingleTimeSelected,
   hasReachedMonthlyLimit,
   MAX_APPOINTMENTS_PER_MONTH,
-} from "@/helpers/apptvalidations";
-import Image from "next/image";
+} from '@/helpers/apptvalidations';
+import Image from 'next/image';
 
 export default function AppointmentPage() {
   const [provider, setProvider] = useState<Provider | null>(null);
@@ -37,9 +37,9 @@ export default function AppointmentPage() {
 
   const params = useParams();
   const router = useRouter();
-  const providerId = typeof params.id === "string" ? params.id : "";
+  const providerId = typeof params.id === 'string' ? params.id : '';
   const { user } = useAuth();
-  const userId = user?.id || "";
+  const userId = user?.id || '';
 
   const today = new Date();
   const days = eachDayOfInterval({
@@ -55,8 +55,8 @@ export default function AppointmentPage() {
         const data = await getProviderById(providerId);
         setProvider(data);
       } catch (error) {
-        console.error("Error al obtener proveedor:", error);
-        toast.error("No se pudo cargar el proveedor");
+        console.error('Error al obtener proveedor:', error);
+        toast.error('No se pudo cargar el proveedor');
       } finally {
         setLoadingProvider(false);
       }
@@ -67,11 +67,11 @@ export default function AppointmentPage() {
       try {
         const appointments = await getAppointmentsByUser(userId);
         const activeAppointments = appointments.filter(
-      (appt) => appt.status === 'pending' || appt.status === 'confirmed'
-    );
+          (appt) => appt.status === 'pending' || appt.status === 'confirmed'
+        );
         setUserAppointments(activeAppointments);
       } catch (error) {
-        console.error("Error al obtener citas del usuario:", error);
+        console.error('Error al obtener citas del usuario:', error);
       }
     };
 
@@ -80,12 +80,10 @@ export default function AppointmentPage() {
   }, [providerId, userId]);
 
   const toggleDate = async (date: Date) => {
-    const dateStr = date.toISOString().split("T")[0];
+    const dateStr = format(date, 'yyyy-MM-dd'); // 🔧 AJUSTADO
 
     if (isDuplicateDate(selectedDates, date)) {
-      setSelectedDates((prev) =>
-        prev.filter((d) => !isDuplicateDate([d], date))
-      );
+      setSelectedDates((prev) => prev.filter((d) => !isDuplicateDate([d], date)));
       setSelectedHours((prev) => {
         const updated = { ...prev };
         delete updated[dateStr];
@@ -95,14 +93,14 @@ export default function AppointmentPage() {
     }
 
     if (!isSingleDateSelected(selectedDates)) {
-      toast("Solo puedes seleccionar un d\u00eda a la vez.", { icon: "\u2757" });
+      toast('Solo puedes seleccionar un día a la vez.', { icon: '❗' });
       return;
     }
 
     if (hasReachedMonthlyLimit(userAppointments)) {
       toast(
-        `Ya has alcanzado el m\u00e1ximo de ${MAX_APPOINTMENTS_PER_MONTH} citas este mes.`,
-        { icon: "\u2757" }
+        `Ya has alcanzado el máximo de ${MAX_APPOINTMENTS_PER_MONTH} citas este mes.`,
+        { icon: '❗' }
       );
       return;
     }
@@ -119,7 +117,7 @@ export default function AppointmentPage() {
       }));
       setSelectedDates([date]);
     } catch {
-      toast.error("Error al obtener disponibilidad para esta fecha.");
+      toast.error('Error al obtener disponibilidad para esta fecha.');
     } finally {
       setLoadingDate(null);
     }
@@ -127,7 +125,7 @@ export default function AppointmentPage() {
 
   const handleHourSelect = (date: string, hour: string) => {
     if (!isSingleTimeSelected(selectedHours)) {
-      toast("Solo puedes seleccionar un horario a la vez.", { icon: "\u2757" });
+      toast('Solo puedes seleccionar un horario a la vez.', { icon: '❗' });
       return;
     }
     setSelectedHours({ [date]: hour });
@@ -141,36 +139,30 @@ export default function AppointmentPage() {
       !providerId ||
       !provider
     ) {
-      toast("Faltan datos para agendar el turno.", { icon: "\u2757" });
+      toast('Faltan datos para agendar el turno.', { icon: '❗' });
       return;
     }
 
     if (hasReachedMonthlyLimit(userAppointments)) {
       toast(
-        `Ya has alcanzado el m\u00e1ximo de ${MAX_APPOINTMENTS_PER_MONTH} citas este mes.`,
-        { icon: "\u2757" }
+        `Ya has alcanzado el máximo de ${MAX_APPOINTMENTS_PER_MONTH} citas este mes.`,
+        { icon: '❗' }
       );
       return;
     }
 
     const profProfileId = provider.professionalProfile?.id;
     if (!profProfileId) {
-      toast.error("El proveedor no tiene perfil profesional configurado");
+      toast.error('El proveedor no tiene perfil profesional configurado');
       return;
     }
 
     const selectedDate = selectedDates[0];
-    const dateOnly = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      selectedDate.getDate()
-    );
-
-    const dateStr = dateOnly.toISOString().split("T")[0];
+    const dateStr = format(selectedDate, 'yyyy-MM-dd'); // 🔧 AJUSTADO
     const time = selectedHours[dateStr];
 
     if (!time) {
-      toast("Falta seleccionar un horario.", { icon: "\u2757" });
+      toast('Falta seleccionar un horario.', { icon: '❗' });
       return;
     }
 
@@ -178,16 +170,16 @@ export default function AppointmentPage() {
       await createAppointment({
         userId,
         professionalId: profProfileId,
-        date: dateOnly,
+        date: dateStr,
         time,
-        status: "pending",
+        status: 'pending',
       });
 
-      toast.success("Turno creado con \u00e9xito");
-      window.location.href = "/dashboard/user/appointments";
+      toast.success('Turno creado con éxito');
+      window.location.href = '/dashboard/user/appointments';
     } catch (error) {
-      console.error("Error al crear el turno:", error);
-      toast.error("Error al agendar los turnos");
+      console.error('Error al crear el turno:', error);
+      toast.error('Error al agendar los turnos');
     }
   };
 
