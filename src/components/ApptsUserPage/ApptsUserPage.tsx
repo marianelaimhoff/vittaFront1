@@ -17,15 +17,12 @@ export default function UserAppointmentsPage() {
   const { user } = useAuth();
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    console.log("userId desde localStorage:", userId);
     if (!user?.id) return;
 
     getAppointmentsByUser(user.id)
       .then(setAppointments)
       .catch((err) => {
         console.error("Error al obtener turnos:", err);
-        // Ya no mostramos alerta si no hay turnos
       });
   }, [user?.id]);
 
@@ -49,23 +46,21 @@ export default function UserAppointmentsPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="title1 mb-6">Mis turnos</h1>
 
+        {/* 🔙 Botón volver */}
+        <button
+          onClick={() => window.history.back()}
+          className="mb-6 text-sm text-primary underline"
+        >
+          ← Volver
+        </button>
+
         {appointments.length === 0 ? (
+          // 🟡 Vista sin turnos
           <div className="bg-white p-8 rounded-xl shadow text-center space-y-6">
             <div className="flex justify-center">
               <div className="bg-green-100 p-4 rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-green-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
+                <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
             </div>
@@ -80,38 +75,9 @@ export default function UserAppointmentsPage() {
             >
               + Agendar turno
             </button>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
-              <div className="bg-gray-50 p-4 rounded-xl text-center">
-                <div className="flex justify-center mb-2">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                </div>
-                <p className="font-semibold text-gray-700">Profesionales verificados</p>
-                <p className="text-xs text-gray-500">Nutricionistas certificados</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-xl text-center">
-                <div className="flex justify-center mb-2">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <p className="font-semibold text-gray-700">Horarios flexibles</p>
-                <p className="text-xs text-gray-500">Encuentra el horario ideal</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-xl text-center">
-                <div className="flex justify-center mb-2">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10m-11 8h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <p className="font-semibold text-gray-700">Fácil gestión</p>
-                <p className="text-xs text-gray-500">Reprograma cuando necesites</p>
-              </div>
-            </div>
           </div>
         ) : (
+          // ✅ Lista de turnos
           <div className="space-y-6">
             {appointments.map((appt) => {
               const estadoColor =
@@ -147,7 +113,7 @@ export default function UserAppointmentsPage() {
                     <p className="text-sm text-gray-500">
                       Fecha:{" "}
                       <span className="font-medium text-gray-800">
-                        {format(new Date(appt.date), "EEEE dd/MM/yyyy", { locale: es })}
+                        {format(new Date(appt.date + "T00:00:00-07:00"), "EEEE dd/MM/yyyy", { locale: es })}
                       </span>
                     </p>
                     <p className="text-sm text-gray-500">

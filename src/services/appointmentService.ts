@@ -11,7 +11,7 @@ export interface ValidateAppointmentPayload {
 export interface CreateAppointmentPayload {
   userId: string;
   professionalId: string;
-  date: Date;
+  date: string;
   time: string; // '08:00', '09:00', etc.
   status: string;
 }
