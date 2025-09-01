@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 type HistoryContextType = {
   history: string[];
@@ -14,7 +14,6 @@ const HistoryContext = createContext<HistoryContextType | undefined>(undefined);
 export const HistoryProvider = ({ children }: { children: ReactNode }) => {
   const [history, setHistory] = useState<string[]>([]);
   const pathname = usePathname();
-  const router = useRouter();
 
   useEffect(() => {
     if (pathname) {
