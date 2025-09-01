@@ -26,6 +26,9 @@ export const getAvailableHours = async ({
 }): Promise<AvailableHour[]> => {
   const response = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/appointments/validate`, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json', 
+    },
     body: JSON.stringify({ professionalId, date }),
   });
 

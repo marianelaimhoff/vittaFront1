@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import BackButton from '../BackButton/BackButton';
 import { useParams, useRouter } from 'next/navigation';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { format, startOfMonth, endOfMonth, addMonths, eachDayOfInterval } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   getAvailableHours,
@@ -44,40 +44,45 @@ export default function AppointmentPage() {
   const today = new Date();
   const days = eachDayOfInterval({
     start: startOfMonth(today),
-    end: endOfMonth(today),
+    end: endOfMonth(addMonths(today, 1)),
   }).filter((day) => isWeekday(day) && !isDateInPast(day));
 
   useEffect(() => {
-    const fetchProvider = async () => {
-      if (!providerId) return;
-      setLoadingProvider(true);
-      try {
-        const data = await getProviderById(providerId);
-        setProvider(data);
-      } catch (error) {
-        console.error('Error al obtener proveedor:', error);
-        toast.error('No se pudo cargar el proveedor');
-      } finally {
-        setLoadingProvider(false);
-      }
-    };
+  const fetchProvider = async () => {
+    if (!providerId) return;
+    setLoadingProvider(true);
+    try {
+      const data = await getProviderById(providerId);
+      setProvider(data);
+    } catch (error) {
+      console.error('Error al obtener proveedor:', error);
+      toast.error('No se pudo cargar el proveedor');
+    } finally {
+      setLoadingProvider(false);
+    }
+  };
 
-    const fetchUserAppointments = async () => {
-      if (!userId) return;
-      try {
-        const appointments = await getAppointmentsByUser(userId);
-        const activeAppointments = appointments.filter(
-          (appt) => appt.status === 'pending' || appt.status === 'confirmed'
-        );
-        setUserAppointments(activeAppointments);
-      } catch (error) {
+  const fetchUserAppointments = async () => {
+    if (!userId) return;
+    try {
+      const appointments = await getAppointmentsByUser(userId);
+      const activeAppointments = appointments.filter(
+        (appt) => appt.status === 'pending' || appt.status === 'confirmed'
+      );
+      setUserAppointments(activeAppointments);
+    } catch (error: any) {
+      // Manejo silencioso si no hay citas
+      if (error.message.includes('No se encontraron turnos')) {
+        setUserAppointments([]);
+      } else {
         console.error('Error al obtener citas del usuario:', error);
       }
-    };
+    }
+  };
 
-    fetchProvider();
-    fetchUserAppointments();
-  }, [providerId, userId]);
+  fetchProvider();
+  fetchUserAppointments();
+}, [providerId, userId]);
 
   const toggleDate = async (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd'); // 🔧 AJUSTADO
