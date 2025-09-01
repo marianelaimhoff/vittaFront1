@@ -1,9 +1,13 @@
-import Memberships from "@/components/Memberships/Memberships";
+import { Suspense } from 'react';
+import Memberships from '@/components/Memberships/Memberships';
 
-export default function MembershipsPage() {
+// Opcional pero útil si quieres evitar SSG en esta ruta
+export const dynamic = 'force-dynamic';
+
+export default function Page() {
   return (
-    <div>
+    <Suspense fallback={<div className="p-6 text-gray-600">Cargando membresía…</div>}>
       <Memberships />
-    </div>
+    </Suspense>
   );
 }
