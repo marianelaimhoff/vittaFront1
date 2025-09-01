@@ -1,5 +1,6 @@
 // helpers/appointmentValidations.ts
 import { isWeekend, isSameMonth, isSameDay } from 'date-fns';
+import { Appointment } from '@/types/Appointment';
 
 export const MAX_APPOINTMENTS_PER_MONTH = 2;
 
@@ -37,7 +38,7 @@ export function isSingleTimeSelected(selectedHours: Record<string, string>): boo
 }
 
 export function hasReachedMonthlyLimit(
-  userAppointments: any[],
+  userAppointments: Appointment[],
   max: number = MAX_APPOINTMENTS_PER_MONTH
 ): boolean {
   const currentMonthAppointments = userAppointments.filter(appointment => 
