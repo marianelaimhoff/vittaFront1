@@ -1,19 +1,19 @@
 export const loginUser = async (credentials: { email: string; password: string }) => {
-  const res = await fetch(`${process.env.API_URL_BACK}/auth/signin`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signin`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     credentials: 'include',
+    body: JSON.stringify(credentials),
   });
 
   const data = await res.json();
 
-  console.log("Respuesta completa del backend (loginUser):", data);
-
   if (!res.ok) {
-    throw new Error(data.message || "Error al iniciar sesión");
+    throw new Error(data.message || 'Error al iniciar sesión');
   }
 
-  return data;
+  return data; // ← debe incluir el token y el usuario
 };
 

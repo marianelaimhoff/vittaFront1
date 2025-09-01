@@ -31,79 +31,88 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [hasMembership, setHasMembership] = useState<boolean>(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
+  const checkAuth = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch('/api/session', { cache: 'no-store' });
+      const raw = await res.text();
+      let session = null;
+
       try {
-        const res = await fetch('/api/session');
-        console.log('[SESSION] Status:', res.status);
-
-        if (res.ok) {
-          const data = await res.json();
-          console.log('[SESSION] Data:', data);
-
-          if (data?.user?.email) {
-            // Paso 1: verificar si existe el usuario en backend
-            const existsRes = await fetch(
-              `${process.env.API_URL_BACK}/users/exists/${data.user.email}`
-            );
-
-            if (existsRes.status === 404) {
-              console.log('[SYNC] Usuario no existe. Creando...');
-              await fetch(`${process.env.API_URL_BACK}/auth/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: data.user.name || 'Usuario',
-                  email: data.user.email,
-                  password: 'auth0',
-                  phone: '0000000000',
-                  dni: '00000000',
-                  city: 'Sin definir',
-                  dob: '2000-01-01',
-                  role: data.role || 'user',
-                }),
-              });
-              console.log('[SYNC] Usuario creado');
-            }
-
-            // Paso 2: obtener usuario completo (con membresía)
-            const userRes = await fetch(
-              `${process.env.API_URL_BACK}/users/by-email/${data.user.email}`
-            );
-
-            if (!userRes.ok) {
-              throw new Error('No se pudo obtener el usuario completo');
-            }
-
-            const fullUser = await userRes.json();
-            console.log('[AUTH] Usuario:', fullUser);
-            console.log('[AUTH] Membership:', fullUser.membership);
-
-            setUser(fullUser);
-            setRole(data.role);
-            setIsAuthenticated(true);
-            return;
-          }
-        }
-
-        // fallback al localStorage
-        const storedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
-        const storedRole = localStorage.getItem('role');
-
-        if (storedUser && token && storedRole) {
-          setUser(JSON.parse(storedUser));
-          setIsAuthenticated(true);
-          setRole(storedRole);
-        }
-      } catch (err) {
-        console.error('[AUTH] Error:', err);
-      } finally {
-        setLoading(false);
+        session = JSON.parse(raw);
+      } catch {
+        console.warn('[SESSION] No es JSON válido');
+        return;
       }
-    };
 
-    checkAuth();
-  }, []);
+      const email = session?.user?.email;
+      const name = session?.user?.name || 'Usuario';
+      const roleFromSession = session?.role || 'user';
+
+      if (email) {
+        const encodedEmail = encodeURIComponent(email);
+
+        const existsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/exists/${encodedEmail}`);
+
+        if (existsRes.status === 404) {
+          console.log('[SYNC] Usuario no existe. Creando...');
+          const createRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name,
+              email,
+              password: 'auth0',
+              phone: '0000000000',
+              dni: '00000000',
+              city: 'Sin definir',
+              dob: '2000-01-01',
+              role: roleFromSession,
+            }),
+          });
+
+          if (!createRes.ok) {
+            throw new Error('[SYNC] No se pudo crear el usuario');
+          }
+
+          console.log('[SYNC] Usuario creado');
+          await new Promise(resolve => setTimeout(resolve, 300)); // Espera para evitar 404
+        }
+
+        const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/by-email/${encodedEmail}`);
+        if (!userRes.ok) {
+          throw new Error('No se pudo obtener el usuario completo');
+        }
+
+        const fullUser = await userRes.json();
+        setUser(fullUser);
+        setRole(roleFromSession);
+        setIsAuthenticated(true);
+        localStorage.setItem('userId', fullUser.id);
+
+        return;
+      }
+
+      // Fallback: localStorage (para proveedores)
+      const storedUser = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      const storedRole = localStorage.getItem('role');
+
+      if (storedUser && token && storedRole) {
+        setUser(JSON.parse(storedUser));
+        setRole(storedRole);
+        setIsAuthenticated(true);
+      }
+    } catch (err) {
+      console.error('[AUTH] Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  checkAuth();
+}, []);
 
   useEffect(() => {
     if (role === 'user' && (user as UserData)?.membership?.status === 'Active') {
@@ -157,6 +166,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-
-  

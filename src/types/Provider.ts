@@ -4,7 +4,7 @@ export type Specialty = {
   };
   
   export type ProfessionalProfile = {
-    id?: string;
+    id: string;
     biography: string;
     experience: string;
     licenseNumber: string;

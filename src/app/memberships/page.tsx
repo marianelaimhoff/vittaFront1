@@ -1,9 +1,9 @@
-'use client';
-
-import dynamic from 'next/dynamic';
-
-const Memberships = dynamic(() => import('@/components/Memberships/Memberships'), { ssr: false });
+import Memberships from "@/components/Memberships/Memberships";
 
 export default function MembershipsPage() {
-  return <Memberships />;
+  return (
+    <div>
+      <Memberships />
+    </div>
+  );
 }

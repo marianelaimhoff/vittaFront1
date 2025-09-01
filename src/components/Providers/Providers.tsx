@@ -2,6 +2,7 @@
 import { useProviders } from '@/context/ProvidersContext';
 import CardProvider from "../CardProvider/CardProvider";
 import { useEffect, useState } from 'react';
+import BackButton from '../BackButton/BackButton';
 
 function Providers() {
   const { providers, loading, error, refreshProviders } = useProviders();
@@ -71,7 +72,9 @@ function Providers() {
 
   return (
     <div className="flex flex-col items-center gap-6 px-4 py-10">
-      
+      <div className="absolute top-24 left-4 z-10"> {/* Cambié top-4 a top-24 */}
+          <BackButton />
+        </div>
       <div className="max-w-4xl text-center">
         <h2 className="text-2xl font-bold text-primary mb-2">Elige al nutricionista ideal para ti</h2>
         <p className="text-secondary mb-4">

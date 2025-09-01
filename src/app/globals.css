@@ -35,6 +35,10 @@ body {
   @apply text-lg font-bold text-primary px-2 py-2
 }
 
+.title2-white {
+  @apply text-lg font-bold text-white px-2 py-2
+}
+
 .btn-dashboard {
   @apply w-full flex items-center text-secondary px-4 py-2 rounded-full text-sm hover:bg-primary hover:text-white transition
 }

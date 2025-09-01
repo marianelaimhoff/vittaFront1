@@ -1,4 +1,3 @@
-// types/Appointment.ts
 export interface Appointment {
   id: string;
   user: {
@@ -6,13 +5,16 @@ export interface Appointment {
     email: string;
   };
   professional: {
-    name: string;
-    email: string;
+    user: {
+      name: string;
+      email: string;
+    };
   };
   date: string;
   time: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
 }
+
 
 export type CreateAppointmentPayload = {
   userId: string;

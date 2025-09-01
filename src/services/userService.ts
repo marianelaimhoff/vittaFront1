@@ -1,25 +1,9 @@
 import { RegisterUserValues } from "@/types/forms/RegisterUser";
+import { fetchWithToken } from "../app/utils/fetchWithToken";
 
-  
-/** 
-  export const registerUser = async (userData: RegisterUserValues) => {
-    const res = await fetch("http://localhost:4000/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData.user),
-    });
-  
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(errorText || "Error al registrar usuario");
-    }
-  
-    return await res.json();
-  };
-*/
 
   export const registerUser = async (userData: RegisterUserValues) => {
-    const res = await fetch(`${process.env.API_URL_BACK}/auth/signup`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
@@ -44,20 +28,19 @@ import { RegisterUserValues } from "@/types/forms/RegisterUser";
   };
 
 
-  export const getUserById = async (id: string, token: string) => {
-    const res = await fetch(`${process.env.API_URL_BACK}/users/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  
-    if (!res.ok) {
-      throw new Error("No se pudo obtener el usuario");
-    }
-  
-    return await res.json();
-  };
-  
+
+
+export const getUserById = async (id: string) => {
+  const res = await fetchWithToken(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => 'Error al obtener el usuario');
+    throw new Error(errorText);
+  }
+
+  return await res.json();
+};
+
 
 
 

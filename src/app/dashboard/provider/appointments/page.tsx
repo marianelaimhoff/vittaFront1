@@ -3,7 +3,6 @@ import ProviderAppointmentsPage from '@/components/ApptsProviderPage/ApptsProvid
 export default function ApptsProvider() {
   return (
     <div>
-      <h1 className="title1 mb-6">Turnos agendados</h1>
       <ProviderAppointmentsPage />
     </div>
   );

@@ -7,18 +7,19 @@ import { getProviderById } from '@/services/providerService';
 import { Provider } from '@/types/Provider';
 import { useAuth } from '@/context/AuthContext';
 import { MapPin, User, IdCard } from 'lucide-react';
-import {toast} from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
+import BackButton from '../BackButton/BackButton';
 
 export default function ProviderProfile() {
   const router = useRouter();
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : '';
 
-  const { hasMembership } = useAuth();
+  const { hasMembership, role, isAuthenticated } = useAuth();
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false); // Nuevo estado para el loading
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -39,17 +40,31 @@ export default function ProviderProfile() {
 
   const handleBookingClick = () => {
     setIsProcessing(true);
-    setTimeout(() => {
-      if (!hasMembership) {
+    
+    if (!hasMembership) {
+      toast.error('Para agendar una cita debes suscribirte a la membresía', {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#fef2f2',
+          color: '#b91c1c',
+          padding: '16px',
+          fontSize: '1rem',
+          fontWeight: '600'
+        }
+      });
+      
+      setTimeout(() => {
         router.push(`/memberships?redirectTo=/providers/${id}`);
-      } else {
+        setIsProcessing(false);
+      }, 5000);
+    } else {
+      setTimeout(() => {
         router.push(`/providers/${id}/appointments`);
-      }
-      setIsProcessing(false);
-    }, 1000);
+        setIsProcessing(false);
+      }, 1000);
+    }
   };
-
-  
 
   if (loading) return <p className="p-4">Cargando perfil...</p>;
   if (error || !provider) return <p className="p-4 text-red-500">Error: {error}</p>;
@@ -61,14 +76,18 @@ export default function ProviderProfile() {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-xl shadow-lg flex flex-col items-center">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
-            <p className="mt-4 text-lg font-medium text-gray-700">Procesando...</p>
+            <p className="mt-4 text-lg font-medium text-gray-700">Redirigiendo...</p>
           </div>
         </div>
       )}
 
+      <div className="absolute top-24 left-4 z-10"> {/* Cambié top-4 a top-24 */}
+          <BackButton />
+        </div>
+
       {/* Imagen */}
       <div className="col-span-1 flex justify-center md:justify-start">
-        <div className="w-60 h-60 relative rounded-xl border border-primary overflow-hidden">
+        <div className="w-60 h-60 relative rounded-xl overflow-hidden shadow-md shadow-gray-400">
           <Image
             src={provider.imageUrl || '/Avatar.jpg'}
             alt={provider.name}
@@ -81,10 +100,13 @@ export default function ProviderProfile() {
       {/* Perfil principal */}
       <div className="md:col-span-2">
         <h1 className="text-4xl font-bold text-secondary">{provider.name}</h1>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {provider.professionalProfile?.specialty?.map((s) => (
-            <span key={s.id} className="bg-yellow-400 text-white px-3 py-1 rounded-full text-sm font-semibold">
-              {s.name}
+        <div className="flex flex-wrap gap-2 mt-4 mb-2">
+          {provider.professionalProfile?.specialty?.map((item) => (
+            <span
+              key={item.id}
+              className="text-yellow-500 border border-tertiary px-3 py-1 rounded-full text-sm font-semibold shadow-md shadow-gray-300/30"
+            >
+              {item.name}
             </span>
           ))}
         </div>
@@ -100,7 +122,7 @@ export default function ProviderProfile() {
       </div>
 
       {/* Datos personales */}
-      <div className="md:col-span-1 bg-gray-50 p-6 rounded-xl shadow-md">
+      <div className="md:col-span-1 bg-gray-100 p-6 rounded-xl shadow-md">
         <h2 className="text-lg font-bold text-secondary mb-4">Datos personales</h2>
         <div className="text-gray-700 space-y-3 text-sm">
           <div className="flex items-center gap-2">
@@ -119,15 +141,18 @@ export default function ProviderProfile() {
       </div>
 
       {/* Agenda */}
-      <div className="md:col-span-1 bg-gray-50 p-6 rounded-xl shadow-md">
+      <div className="md:col-span-1 bg-gray-100 p-6 rounded-xl shadow-md">
         <h2 className="text-lg font-bold text-secondary mb-1">Agenda tus consultas del mes</h2>
-        <p className="text-green-600 font-semibold text-sm mb-2">Haz clic para ver la disponibilidad</p>
+        {isAuthenticated && role !== 'provider' && (
+         <p className="text-green-600 font-semibold text-sm mb-2">Haz clic para ver la disponibilidad</p>
+        )}
         <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
           <li>Los turnos son a través de videollamadas.</li>
           <li>La tolerancia de espera es de 10 min.</li>
           <li>Disponer de micrófono y cámara.</li>
         </ul>
 
+        {isAuthenticated && role !== 'provider' && (
         <div className="mt-4 flex justify-center">
           <button
             onClick={handleBookingClick}
@@ -137,16 +162,16 @@ export default function ProviderProfile() {
             {isProcessing ? 'Cargando...' : 'Agendar citas'}
           </button>
         </div>
+      )}
       </div>
 
       {/* Membresía (solo información) */}
-      <div className="md:col-span-1 bg-gray-50 p-6 rounded-xl shadow-md">
+      <div className="md:col-span-1 bg-gray-100 p-6 rounded-xl shadow-md">
         <h2 className="text-lg font-bold text-secondary mb-1">Membresía</h2>
         <p className="text-green-600 font-bold text-lg">$49.99 c/ mes</p>
         <p className="text-sm text-gray-700 mt-1">
           Incluye 2 sesiones al mes para consultas, controles o planes alimenticios.
         </p>
-        
       </div>
     </div>
   );

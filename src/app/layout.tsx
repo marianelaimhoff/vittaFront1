@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
-import { AuthProvider } from "@/context/AuthContext"; // 👈 importa el provider
+import { AuthProvider } from "@/context/AuthContext";
 import { ProvidersProvider } from "@/context/ProvidersContext";
-import { Auth0Provider } from "@auth0/nextjs-auth0" // 👈 Importa el nuevo provider
+import { Auth0Provider } from "@auth0/nextjs-auth0";
 import { Toaster } from "react-hot-toast";
+import { HistoryProvider } from "@/context/HistoryContext"; // Importación añadida
 
 export const metadata: Metadata = {
   title: "Vitta",
@@ -24,10 +25,11 @@ export default function RootLayout({
         <Auth0Provider>
           <ProvidersProvider>
             <AuthProvider>
-              <Navbar />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-              
+              <HistoryProvider> {/* Envuelve aquí todo el contenido que necesita acceso al historial */}
+                <Navbar />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+              </HistoryProvider>
             </AuthProvider>
           </ProvidersProvider>
         </Auth0Provider>
@@ -35,7 +37,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-
-
-

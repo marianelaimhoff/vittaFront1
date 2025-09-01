@@ -6,6 +6,7 @@ import { CreditCard } from 'lucide-react';
 import { createCheckoutSession } from '@/services/stripeService';
 import { useAuth } from '@/context/AuthContext'; 
 import {toast} from 'react-hot-toast';
+import BackButton from '../BackButton/BackButton';
 
 const Memberships = () => {
   const { user } = useAuth();
@@ -38,6 +39,9 @@ const Memberships = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-5">
+      <div className="absolute top-24 left-4 z-10"> {/* Cambié top-4 a top-24 */}
+          <BackButton />
+        </div>
       <div className="bg-gray-100 max-w-xl w-full border border-secondary rounded-lg shadow-sm">
         <div className="p-6 text-center">
           <div className="mb-4">
@@ -63,7 +67,7 @@ const Memberships = () => {
             <button
               onClick={handleStripeCheckout}
               disabled={loading === 'stripe'}
-              className={`bg-secondary text-white px-4 py-2 rounded-lg hover:bg-primary transition ${
+              className={`bg-secondary text-white px-4 py-2 rounded-full hover:bg-primary transition ${
                 loading === 'stripe' ? 'opacity-70 cursor-not-allowed' : ''
               }`}
             >
